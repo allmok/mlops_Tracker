@@ -3,6 +3,7 @@ import App from './App.vue'
 
 import PrimeVue from 'primevue/config'
 import 'primevue/resources/themes/lara-light-blue/theme.css'
+import VirtualScroller from 'primevue/virtualscroller';
 
 import 'primevue/resources/primevue.min.css'
 
@@ -28,5 +29,6 @@ app.component('Checkbox', Checkbox)
 app.component('Chart', Chart)
 app.component('Message', Message)
 app.component('ProgressSpinner', ProgressSpinner)
+app.component('VirtualScroller', VirtualScroller);
 
 app.mount('#app')
