@@ -13,7 +13,7 @@ A simple frontend application for visualizing and comparing machine learning exp
 -   **Multi-Select:** Allows users to select multiple experiments for comparison.
 -   **Dynamic Charting:** Renders line charts for each metric across all selected experiments.
 
-## Tech Stack: Built with Vue 3 and TypeScript, utilizing PrimeVue for the component library as recommended.
+**Tech Stack:**  Built with Vue 3 and TypeScript, utilizing PrimeVue for the component library as recommended.
 
 ## How to Run Locally
 

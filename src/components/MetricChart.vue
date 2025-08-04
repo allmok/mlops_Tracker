@@ -28,7 +28,7 @@
         >
           <Button 
             @click="resetZoom" 
-            label="Reset Zoom" 
+            label="Reset" 
             icon="pi pi-refresh" 
             class="p-button-outlined p-button-sm"
           />
