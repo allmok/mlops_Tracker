@@ -10,24 +10,25 @@
       </h2>
     </template>
 
-    <template #header>
-      <div class="flex justify-end p-5">
-        <div class="flex items-center">
-          <Button 
-            @click="selectAll"
-            label="Select All"
-            icon="pi pi-check-square"
-            class="p-button-outlined mr-4"
-          />
-          <Button 
-            @click="clearAll"
-            label="Clear All"
-            icon="pi pi-times-circle"
-            class="p-button-outlined p-button-danger"
-          />
-        </div>
-      </div>
-    </template>
+<template #header>
+  <div class="flex justify-end p-5">
+    <div class="flex items-center">
+      <Button 
+        @click="selectAll"
+        label="Select All"
+        icon="pi pi-check-square"
+        class="p-button-outlined"
+        style="margin-right: 1rem"
+      />
+      <Button 
+        @click="clearAll"
+        label="Clear All"
+        icon="pi pi-times-circle"
+        class="p-button-outlined p-button-danger"
+      />
+    </div>
+  </div>
+</template>
 
     <template #content>
       <div v-if="props.selectedExperiments.length > 10" class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
