@@ -1,32 +1,53 @@
 import { ref, nextTick } from 'vue';
 import type { ExperimentRecord, OptimizedExperiment, OptimizedMetricData, FileProcessingResult } from '../types';
 
-const parseCSVChunked = async (
-  csvContent: string, 
+const streamParseCSV = async (
+  file: File,
   progressCallback: (progress: number) => void,
   messageCallback: (message: string) => void
 ): Promise<ExperimentRecord[]> => {
-  const lines = csvContent.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.trim());
-  
-  if (!headers.includes('experiment_id') || 
-      !headers.includes('metric_name') || 
-      !headers.includes('step') || 
-      !headers.includes('value')) {
-    throw new Error('The CSV file must contain the following columns: experiment_id, metric_name, step, value');
-  }
+  messageCallback('Parsing CSV file stream...');
+  await nextTick();
 
   const records: ExperimentRecord[] = [];
-  const chunkSize = 1000;
-  const totalLines = lines.length - 1;
+  const reader = file.stream().getReader();
+  const decoder = new TextDecoder("utf-8");
+  let leftover = ''; 
+  let headers: string[] | null = null;
+  let bytesProcessed = 0;
 
-  messageCallback('Parsing CSV file...');
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      if (leftover.trim()) {
+      }
+      break;
+    }
 
-  for (let i = 1; i < lines.length; i += chunkSize) {
-    const chunk = lines.slice(i, Math.min(i + chunkSize, lines.length));
-    
-    for (const line of chunk) {
+    bytesProcessed += value.length;
+    progressCallback(Math.round((bytesProcessed / file.size) * 50)); 
+
+    const chunkText = decoder.decode(value, { stream: true });
+    const textToProcess = leftover + chunkText;
+    const lines = textToProcess.split('\n');
+    leftover = lines.pop() || '';
+
+    for (const line of lines) {
+      if (!line.trim()) continue;
+
       const values = line.split(',').map(v => v.trim());
+      
+      if (!headers) {
+        headers = values;
+        if (!headers.includes('experiment_id') || 
+            !headers.includes('metric_name') || 
+            !headers.includes('step') || 
+            !headers.includes('value')) {
+          throw new Error('The CSV file must contain the following columns: experiment_id, metric_name, step, value');
+        }
+        continue; 
+      }
+
       if (values.length !== headers.length) continue;
 
       const record: ExperimentRecord = {
@@ -36,16 +57,16 @@ const parseCSVChunked = async (
         value: parseFloat(values[headers.indexOf('value')])
       };
 
-      if (!isNaN(record.step) && !isNaN(record.value)) {
+      if (record.experiment_id && record.metric_name && !isNaN(record.step) && !isNaN(record.value)) {
         records.push(record);
       }
     }
-
-    progressCallback(Math.round((i / totalLines) * 50));
     await nextTick();
   }
+  
   return records;
 };
+
 
 const optimizeExperiments = async (
   records: ExperimentRecord[],
@@ -69,7 +90,7 @@ const optimizeExperiments = async (
       }
       expMap.get(record.metric_name)!.push({ step: record.step, value: record.value });
     });
-
+    
     progressCallback(50 + Math.round((i / records.length) * 30));
     await nextTick();
   }
@@ -114,25 +135,20 @@ export function useFileProcessor() {
     if (!file.name.toLowerCase().endsWith('.csv')) {
       throw new Error('Only CSV files are supported');
     }
-    if (file.size > 100 * 1024 * 1024) { 
-      throw new Error('File too large (maximum 100MB)');
-    }
 
     isLoading.value = true;
     error.value = null;
     processingProgress.value = 0;
 
     try {
-      const content = await file.text();
-
       const progressCallback = (p: number) => { processingProgress.value = p; };
       const messageCallback = (m: string) => { loadingMessage.value = m; };
-
-      const records = await parseCSVChunked(content, progressCallback, messageCallback);
+      const records = await streamParseCSV(file, progressCallback, messageCallback);
       const experiments = await optimizeExperiments(records, progressCallback, messageCallback);
       const metrics = Array.from(new Set(experiments.flatMap(exp => Object.keys(exp.metrics)))).sort();
       
       processingProgress.value = 100;
+      messageCallback('Done!');
       
       return {
         experiments,
