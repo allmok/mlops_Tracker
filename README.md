@@ -4,7 +4,7 @@ A simple frontend application for visualizing and comparing machine learning exp
 
 ## Demo
 
-**Live Application:** [GitHub Pages]
+**Live Application:** https://allmok.github.io/mlops_Tracker/
 
 ## Core
 
