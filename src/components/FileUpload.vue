@@ -4,6 +4,7 @@
       <div v-if="error" class="mb-4">
         <Message severity="error" :closable="false">{{ error }}</Message>
       </div>
+      
       <div v-if="processingProgress > 0 && processingProgress < 100" class="mb-4">
         <div class="flex items-center justify-between mb-2">
           <span class="text-sm text-gray-600">{{ loadingMessage }}</span>
@@ -23,7 +24,7 @@
           type="file"
           accept=".csv"
           @change="handleFileChange"
-          class="hidden"
+          style="display: none !important; position: absolute !important; left: -9999px !important;"
         />
         
         <div v-if="isLoading" class="text-blue-600">
@@ -32,22 +33,28 @@
         </div>
         
         <div v-else>
-          <p class="text-xl font-medium text-gray-900 mb-2">
-            Upload CSV file with experiments
-          </p>
-          <p class="text-gray-500 mb-4">
-            The file must contain the following columns: experiment_id, metric_name, step, value
-          </p>
+          <div v-if="experimentsCount > 0" class="text-green-600 mb-4">
+            <p class="text-xl font-medium">File loaded successfully!</p>
+            <p class="text-gray-500 mt-2">
+              {{ totalRecords }} records processed, {{ experimentsCount }} experiments found.
+            </p>
+          </div>
+          
+          <div v-else>
+            <p class="text-xl font-medium text-gray-900 mb-2">
+              Upload CSV file with experiments
+            </p>
+            <p class="text-gray-500 mb-4">
+              The file must contain the following columns: experiment_id, metric_name, step, value
+            </p>
+          </div>
+
           <Button
             @click="triggerFileInput"
             icon="pi pi-upload"
             label="Select file"
             class="p-button bg-blue-500 hover:bg-blue-600 border-blue-500 hover:border-blue-600"
           ></Button>
-          
-          <div v-if="experimentsCount > 0" class="mt-4 text-sm text-gray-600">
-            <p>Uploaded: {{ totalRecords }} records, {{ experimentsCount }} experiments</p>
-          </div>
         </div>
       </div>
     </template>

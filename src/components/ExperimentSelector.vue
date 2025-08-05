@@ -2,7 +2,6 @@
   <Card class="mb-6 shadow-sm">
     <template #title>
       <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-        <i class="pi pi-list text-blue-600"></i>
         Experiments ({{ props.experiments.length }})
         <span class="text-sm text-gray-500 ml-2">
           (Selected: {{ props.selectedExperiments.length }})

@@ -1,5 +1,5 @@
 <template>
-  <Card class="shadow-sm">
+  <Card class="shadow-sm metric-chart-card">
     <template #title>
       <span>Metric: {{ metricName }}</span>
     </template>
@@ -14,6 +14,7 @@
       </div>
 
       <div v-else>
+
         <Chart 
           ref="chartRef"
           type="line"
@@ -39,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+
 import { computed, ref } from 'vue'
 import type { OptimizedExperiment } from '../types'
 import { useChartData } from '../composables/useChartData'
